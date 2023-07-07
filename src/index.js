@@ -3,33 +3,27 @@ import SlimSelect from 'slim-select';
 import { Report } from 'notiflix/build/notiflix-report-aio';
 import { Loading } from 'notiflix/build/notiflix-loading-aio';
 import 'slim-select/dist/slimselect.css';
-Loading.standard();
+
 const selectRef = document.querySelector('.breed-select');
 const descriptionContainerRef = document.querySelector('.cat-info');
 const loaderRef = document.querySelector('.loader');
 const errorRef = document.querySelector('.error');
 
 const fetchSome = new FetchSome();
+
+Loading.standard();
 fetchSome
   .fetchElement(`/breeds`)
   .then(addBreedsOnList)
-  .catch(eror => {
-    console.log(eror);
-    errorRef.classList.remove('visually-hidden');
-    showErorModal();
-  })
-  .finally(() => {
-    loaderRef.classList.add('visually-hidden');
-    Loading.remove();
-  });
+  .catch(cbForCatch)
+  .finally(cbForFinally);
+
 function addBreedsOnList(breeds) {
-  selectRef.classList.remove('visually-hidden');
-  const allBreeds = breeds
-    .map(dreed => `<option value="${dreed.id}">${dreed.name}</option>`)
-    .join('');
+  const allBreeds = breeds.map(cbForSelectHTML).join('');
   selectRef.insertAdjacentHTML('beforeend', allBreeds);
-  selectRef.style.display = '';
-  const newSelect = new SlimSelect({
+
+  selectRef.classList.remove('visually-hidden');
+  new SlimSelect({
     select: '#single',
   });
 }
@@ -42,21 +36,29 @@ function selectedBreed(event) {
   fetchSome
     .fetchElement('/images/search', { breed_ids: event.target.value })
     .then(marcupBreedDescription)
-    .catch(eror => {
-      console.log(eror);
-      errorRef.classList.remove('visually-hidden');
-      showErorModal();
-    })
-    .finally(() => {
-      loaderRef.classList.add('visually-hidden');
-    });
+    .catch(cbForCatch)
+    .finally(cbForFinally);
 }
 
 function marcupBreedDescription(breed) {
-  const breedDescriptionHTML = breed
-    .map(elem => {
-      const { name, description, temperament } = elem.breeds[0];
-      return `<div class="picture-container">
+  const breedDescriptionHTML = breed.map(cbForBreedDescriptionHTML).join('');
+  descriptionContainerRef.insertAdjacentHTML('beforeend', breedDescriptionHTML);
+  Loading.remove();
+}
+function showErorModal() {
+  Report.failure(
+    'Oops!',
+    'Something went wrong! Try reloading the page!',
+    'Ok'
+  );
+}
+// ==========================================================
+function cbForSelectHTML(dreed) {
+  return `<option value="${dreed.id}">${dreed.name}</option>`;
+}
+function cbForBreedDescriptionHTML(elem) {
+  const { name, description, temperament } = elem.breeds[0];
+  return `<div class="picture-container">
       <img class="breed-picture"
      src="${elem.url}"
      alt="${name}"
@@ -68,16 +70,14 @@ function marcupBreedDescription(breed) {
      <p>${description}</p>
      <p><span class="text-selection">Temperament: </span>${temperament}</p>
      </div>`;
-    })
-    .join('');
+}
+function cbForCatch(eror) {
+  selectRef.classList.add('visually-hidden');
+  console.log(eror);
+  errorRef.classList.remove('visually-hidden');
+  showErorModal();
+}
+function cbForFinally() {
+  loaderRef.classList.add('visually-hidden');
   Loading.remove();
-  descriptionContainerRef.insertAdjacentHTML('beforeend', breedDescriptionHTML);
 }
-function showErorModal() {
-  Report.failure(
-    'Oops!',
-    'Something went wrong! Try reloading the page!',
-    'Ok'
-  );
-}
-// =======
