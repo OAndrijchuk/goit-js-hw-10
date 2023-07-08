@@ -1,8 +1,8 @@
+// import 'slim-select/dist/slimselect.css';
 import { FetchSome } from './cat-api.js';
 import SlimSelect from 'slim-select';
 import { Report } from 'notiflix/build/notiflix-report-aio';
 import { Loading } from 'notiflix/build/notiflix-loading-aio';
-import 'slim-select/dist/slimselect.css';
 
 const selectRef = document.querySelector('.breed-select');
 const descriptionContainerRef = document.querySelector('.cat-info');

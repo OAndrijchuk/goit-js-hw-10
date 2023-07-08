@@ -1,4 +1,4 @@
-/* @import './loader.css'; */
+@import '../../node_modules/slim-select/dist/slimselect.css';
 * {
   box-sizing: border-box;
 }
